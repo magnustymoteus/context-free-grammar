@@ -14,13 +14,14 @@ class CFG {
 public:
     std::set<std::string> variables;
     std::set<std::string> terminals;
-    std::map<std::string, std::list<std::list<std::string>>> production_rules;
+    std::multimap<std::string, std::list<std::string>> production_rules;
     std::string starting_variable;
 
     CFG(const std::set<std::string> &variables_arg,
         const std::set<std::string> &terminals_arg,
-        std::map<std::string, std::list<std::list<std::string>>> &production_rules_arg, const std::string &starting_variable_arg);
-    CFG();
+        std::map<std::string, std::list<std::list<std::string>>> &production_rules_arg,
+        const std::string &starting_variable_arg);
+    CFG(const std::string &jsonPath);
 
     bool isValid(std::string &errorMessage) const;
     void print() const;
