@@ -3,8 +3,8 @@
   "Terminals": ["a", "b","0", "1"],
   "Productions": [
     {"head": "S", "body": ["a", "S", "b","BINDIGIT"]}, {"head": "S", "body": []},
-    {"head": "BINDIGIT", "body": ["0"]},
-    {"head": "BINDIGIT", "body": ["1"]}
+    {"head": "BINDIGIT", "body": ["1"]},
+    {"head": "BINDIGIT", "body": ["0"]}
   ],
   "Start": "S"
 }

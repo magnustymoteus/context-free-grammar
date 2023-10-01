@@ -29,7 +29,6 @@ CFG::CFG(const std::set<std::string> &variables_arg,
     std::string errorMessage;
     if(!isValid(errorMessage)) throw std::invalid_argument(errorMessage.c_str());
 }
-
 CFG::CFG(const std::string &jsonPath) {
     std::ifstream input(jsonPath);
     json j = json::parse(input);
@@ -90,7 +89,8 @@ void CFG::print() const {
     std::cout << "}\n";
 
     std::cout << "P = {\n";
-    for (const std::pair<std::string, std::list<std::list<std::string>>> currentRule: production_rules) {
+    for (std::pair<std::string, std::list<std::list<std::string>>> currentRule: production_rules) {
+        currentRule.second.sort();
         for (const std::list<std::string> &currentBody: currentRule.second) {
             std::cout << "\t" << currentRule.first << " -> `";
             for (const std::string &currentString: currentBody) {
