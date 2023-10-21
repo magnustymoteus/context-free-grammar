@@ -10,11 +10,15 @@
 #include <map>
 #include <string>
 
+
+typedef std::vector<std::string> CFGProductionBody;
+typedef std::vector<CFGProductionBody> CFGProductionBodies;
+
 class CFG {
 public:
     std::set<std::string> variables;
     std::set<std::string> terminals;
-    std::map<std::string, std::vector<std::vector<std::string>>> production_rules;
+    std::map<std::string, CFGProductionBodies> production_rules; // key: head : array of bodies
     std::string starting_variable;
 
     CFG(const std::set<std::string> &variables_arg,

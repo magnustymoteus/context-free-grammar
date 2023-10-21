@@ -20,7 +20,7 @@ bool hasConflicts(const std::set<std::string> &variables, const std::set<std::st
 
 CFG::CFG(const std::set<std::string> &variables_arg,
          const std::set<std::string> &terminals_arg,
-         std::map<std::string, std::vector<std::vector<std::string>>> &production_rules_arg,
+         std::map<std::string, CFGProductionBodies> &production_rules_arg,
          const std::string &starting_variable_arg) :
 
          variables(variables_arg), terminals(terminals_arg), production_rules(production_rules_arg),
@@ -38,7 +38,7 @@ CFG::CFG(const std::string &jsonPath) {
     const json &productions = j["Productions"];
     for(const json &currentProduction : productions) {
         const std::string &head = currentProduction["head"];
-        std::vector<std::string> body = currentProduction["body"];
+        CFGProductionBody body = currentProduction["body"];
         if(body.empty()) body.insert(body.end(), "");
         production_rules[head].insert(production_rules[head].end(), body);
     }
@@ -56,11 +56,11 @@ bool CFG::isValid(std::string &errorMessageRef) const {
     if(hasConflicts(variables, terminals)) {
         errorMessage="Intersection of variables and terminals is not empty!";
     }
-    for(const std::pair<std::string, std::vector<std::vector<std::string>>> currentRule : production_rules) {
+    for(const std::pair<std::string, CFGProductionBodies> currentRule : production_rules) {
         if(variables.find(currentRule.first) == variables.end()) {
             errorMessage = "Head of a rule is not in variables set!";
         }
-        for(const std::vector<std::string> &currentBody : currentRule.second) {
+        for(const CFGProductionBody &currentBody : currentRule.second) {
             for(const std::string &currentString : currentBody) {
                 if(!currentString.empty() && (variables.find(currentString) == variables.end() &&
                    terminals.find(currentString) == terminals.end())) {
@@ -89,7 +89,7 @@ void CFG::print() const {
     std::cout << "}\n";
 
     std::cout << "P = {\n";
-    for (std::pair<std::string, std::vector<std::vector<std::string>>> currentRule: production_rules) {
+    for (std::pair<std::string, CFGProductionBodies> currentRule: production_rules) {
         sort(currentRule.second.begin(), currentRule.second.end());
         for (int i=0; i < currentRule.second.size(); i++) {
             std::cout << "\t" << currentRule.first << " -> `";
