@@ -5,17 +5,30 @@
 #ifndef CFG_LLPARSER1_H
 #define CFG_LLPARSER1_H
 
-#include "CFG.h"
+class CFG;
+
+#include <map>
+#include <string>
+#include <set>
+
+typedef std::map<std::string, std::map<std::string, std::string>> LL1ParsingTable;
 
 class LL1Parser {
 private:
-
+    [[nodiscard]] LL1ParsingTable getParsingTable() const;
+    [[nodiscard]] std::map<std::string, unsigned int> getColumnWidthsOfParsingTable(
+            const LL1ParsingTable &parsingTable) const;
+    void printParsingTable(const LL1ParsingTable &parsingTable,
+                           const std::map<std::string, unsigned int> &columnWidths) const;
+    void printHorizontalLine(const std::map<std::string,
+            unsigned int> &columnWidths, const unsigned int &variableColumnWidth) const;
 public:
-    std::map<std::string, std::set<std::string>> followSet;
-    std::map<std::string, std::set<std::string>> firstSet;
-    std::map<std::pair<std::string, std::string>, std::string> parsingTable; // {row, column} : string
-    explicit LL1Parser(const CFG &cfg);
-   // void print() const;
+    std::map<std::string, std::set<std::string>> followSets;
+    std::map<std::string, std::set<std::string>> firstSets;
+    const CFG &cfg;
+
+    LL1Parser(const CFG &cfg);
+    void print() const;
 };
 
 

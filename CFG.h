@@ -9,7 +9,7 @@
 #include <vector>
 #include <map>
 #include <string>
-
+#include "LLParser1.h"
 
 typedef std::vector<std::string> CFGProductionBody;
 typedef std::vector<CFGProductionBody> CFGProductionBodies;
@@ -33,7 +33,8 @@ public:
     explicit CFG(const std::string &jsonPath);
 
     void print() const;
-    void ll() const;
+
+    [[nodiscard]] LL1Parser ll() const;
     [[nodiscard]] bool isTerminal(const std::string &symbol) const;
 
     [[nodiscard]] std::set<std::string> getVariables() const;
@@ -49,6 +50,9 @@ public:
     [[nodiscard]] std::map<std::string, std::set<std::string>> getAllFirstSets() const;
 
     [[nodiscard]] std::map<std::string, std::set<std::string>> getAllFollowSets() const;
+
+    [[nodiscard]] static std::string bodyToStr(const std::vector<std::string> &body);
+
 };
 
 

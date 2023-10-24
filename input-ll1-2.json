@@ -1,21 +1,19 @@
 {
-  "Variables": ["B", "E", "C","S", "F", "D"],
-  "Terminals": ["a", "c", "h", "b", "f", "g"],
+  "Variables": ["A", "B", "C", "S"],
+  "Terminals": ["a", "b", "d", "g", "h"],
   "Productions": [
-    {"head": "S", "body": ["a", "B", "D", "h"]},
+    {"head": "S", "body": ["A", "C", "B"]},
+    {"head": "S", "body": ["C", "b", "b"]},
+    {"head": "S", "body": ["B", "a"]},
 
-    {"head": "B", "body": ["c", "C"]},
+    {"head": "A", "body": ["d", "a"]},
+    {"head": "A", "body": ["B", "C"]},
 
-    {"head": "C", "body": ["b", "C"]},
-    {"head": "C", "body": [""]},
+    {"head": "B", "body": ["g"]},
+    {"head": "B", "body": []},
 
-    {"head": "D", "body": ["E", "F"]},
-
-    {"head": "E", "body": ["g"]},
-    {"head": "E", "body": [""]},
-
-    {"head": "F", "body": ["f"]},
-    {"head": "F", "body": [""]}
+    {"head": "C", "body": ["h"]},
+    {"head": "C", "body": []}
   ],
   "Start": "S"
 }

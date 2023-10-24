@@ -23,8 +23,8 @@ bool CFG::isTerminal(const std::string &symbol) const {
     return terminals.find(symbol) != terminals.end();
 }
 
-void CFG::ll() const {
-    LL1Parser(*this);
+LL1Parser CFG::ll() const {
+    return LL1Parser{*this};
 }
 CFG::CFG(const std::set<std::string> &variables_arg,
          const std::set<std::string> &terminals_arg,
@@ -80,7 +80,18 @@ bool CFG::isValid(std::string &errorMessageRef) const {
     if(!errorMessage.empty()) errorMessageRef = errorMessage;
     return errorMessage.empty();
 }
-
+std::string CFG::bodyToStr(const std::vector<std::string> &body) {
+    std::string result;
+    if(!body.empty()) {
+        result += "`";
+        for (int i = 0; i < body.size(); i++) {
+            if (i > 0) result += " ";
+            result += body[i];
+        }
+        result += "`";
+    }
+    return result;
+}
 void CFG::print() const {
     std::cout << "V = {";
     for (const std::string &currentVariable: variables) {
@@ -155,43 +166,35 @@ void CFG::setFollowSet(const std::string &variable,
     // when epsilon gets derived u need to get the first of the next one
 
     /* FOLLOW(A) = {a|S ⇒* αAaβ where α, β can be any strings} */
-    std::cout << "--START PRODUCTIONS OF " << variable << "--\n";
     if(variable == getStartingVariable())
         insertIfNotASubset(followSets[variable],{"<EOS>"}, setHasChanged);
     for(const CFGProductionBody &currentBody : getProductionBodies(variable)) {
         for(int i=0;i<currentBody.size();i++) {
             const std::string &current = currentBody[i];
             const bool &currentIsTerminal = isTerminal(current);
-            /* If production is of form A → α B β, β ≠ ε. */
-            if(i != currentBody.size()-1) {
-                const std::string &next = currentBody[i+1];
-                if(!currentIsTerminal) {
-                    std::set<std::string> firstSet = getFirstSet(next);
-                    /* (b) If FIRST (β) contains ε (i. e. , β ⇒* ε), then FOLLOW (B) = FIRST (β) − {ε} ∪ FOLLOW (A) */
-                    std::cout << "FOLLOW(" << current << ") = FIRST(" << next << ")";
-                    if(firstSet.find("") != firstSet.end()) {
-                        firstSet.erase("");
-                        const std::set<std::string> &followSet = followSets[variable];
-                        std::cout << " U FOLLOW(" << variable << ")";
-                        insertIfNotASubset(followSets[current], followSet, setHasChanged);
-                    }
-                    std::cout << std::endl;
-                    /* (a) If FIRST (β) does not contain ε then, FOLLOW (B) = {FIRST (β)} */
+            if(i != currentBody.size()-1 && !currentIsTerminal) {
+                bool hasEpsilon = false;
+                for(int j=i+1;j<currentBody.size();j++) {
+                    const std::string &currentNext = currentBody[j];
+                    std::set<std::string> firstSet = getFirstSet(currentNext);
+                    hasEpsilon = firstSet.find("") != firstSet.end();
+                    firstSet.erase("");
                     insertIfNotASubset(followSets[current], firstSet, setHasChanged);
+                    if(!hasEpsilon) break;
                 }
+                if(hasEpsilon) {
+                    insertIfNotASubset(followSets[current], followSets[variable], setHasChanged);
+                }
+
             }
             /* If production is of form A → αB, then Follow (B) ={FOLLOW (A)}. */
             else if(!currentIsTerminal && !current.empty()) {
                 const std::set<std::string> &followSet = followSets[variable];
-                std::cout << "FOLLOW(" << current << ") = FOLLOW(" << variable << ")\n";
                 insertIfNotASubset(followSets[current], followSet, setHasChanged);
             }
         }
     }
-    std::cout << "--END PRODUCTIONS OF " << variable << "--\n\n";
 }
-
-
 
 
 std::map<std::string, std::set<std::string>> CFG::getAllFollowSets() const {
@@ -202,7 +205,6 @@ std::map<std::string, std::set<std::string>> CFG::getAllFollowSets() const {
         for (const std::string &currentVariable: getVariables()) {
             setFollowSet(currentVariable, result, setHasChanged);
         }
-        std::cout << std::endl;
     }
     return result;
 }

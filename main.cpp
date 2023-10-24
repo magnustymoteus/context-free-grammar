@@ -3,7 +3,7 @@
 using namespace std;
 
 int main() {
-    CFG cfg("input-ll1-2.json");
-    cfg.ll();
+    CFG cfg("input-ll1.json");
+    cfg.ll().print();
     return 0;
 }
