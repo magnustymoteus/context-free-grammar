@@ -9,7 +9,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "LLParser1.h"
+#include "LL1Parser.h"
 
 typedef std::vector<std::string> CFGProductionBody;
 typedef std::vector<CFGProductionBody> CFGProductionBodies;
@@ -34,7 +34,7 @@ public:
 
     void print() const;
 
-    [[nodiscard]] LL1Parser ll() const;
+    void ll() const;
     [[nodiscard]] bool isTerminal(const std::string &symbol) const;
 
     [[nodiscard]] std::set<std::string> getVariables() const;

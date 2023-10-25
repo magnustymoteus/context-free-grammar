@@ -2,7 +2,7 @@
 // Created by gruzi on 22/10/2023.
 //
 
-#include "LLParser1.h"
+#include "LL1Parser.h"
 
 #include "CFG.h"
 
@@ -13,20 +13,25 @@ LL1Parser::LL1Parser(const CFG &cfg) : firstSets(cfg.getAllFirstSets()), followS
 {}
 
 void printSet(const std::set<std::string> &set) {
+    std::set<std::string> newSet = set;
+    const bool containsEpsilon = newSet.find("") != newSet.end();
+    newSet.erase("");
     std::string result = "{";
-    for(const std::string &currentSymbol : set) {
-        result += currentSymbol+", ";
+    const unsigned int size = newSet.size();
+    unsigned int i=0;
+    for(const std::string &currentSymbol : newSet) {
+        if(!currentSymbol.empty()) result += currentSymbol;
+        if(i!=size-1) result += ", ";
+        i++;
     }
-    std::cout << result.substr(0, result.size()-2)+"}" << std::endl;
+    if(containsEpsilon) result += ", ";
+    std::cout << result+"}\n";
 }
 void printSets(const std::map<std::string, std::set<std::string>> &sets) {
-    if(sets.size() == 1) printSet(sets.begin()->second);
-    else {
-        std::cout << std::endl;
-        for(const auto & currentVariable : sets) {
-            std::cout << "\t" << currentVariable.first << ": ";
-            printSet(currentVariable.second);
-        }
+    std::cout << std::endl;
+    for(const auto & currentVariable : sets) {
+        std::cout << std::string(4, ' ') << currentVariable.first << ": ";
+        printSet(currentVariable.second);
     }
 }
 std::set<std::string> getTerminalsWithEOS(const std::set<std::string> &terminals) {
@@ -50,9 +55,12 @@ LL1ParsingTable LL1Parser::getParsingTable() const {
     for(const std::string &currentVariable : cfg.getVariables()) {
         for(const CFGProductionBody &currentBody : cfg.getProductionBodies(currentVariable)) {
             std::set<std::string> firstSet = {currentBody[0]};
+            const std::set<std::string> &followSet = followSets.at(currentVariable);
             if(!cfg.isTerminal(currentBody[0]) && !currentBody[0].empty()) firstSet = firstSets.at(currentBody[0]);
-            else if(currentBody[0].empty()) {
-                // to do
+            else if(currentBody[0].empty() || firstSet.find("") != firstSet.end()) {
+                for(const std::string &currentTerminal : followSet) {
+                    parsingTable[currentVariable][currentTerminal] = "";
+                }
             }
             for(const std::string &currentTerminal : firstSet) {
                 parsingTable[currentVariable][currentTerminal] = CFG::bodyToStr(currentBody);
@@ -65,7 +73,9 @@ LL1ParsingTable LL1Parser::getParsingTable() const {
 std::map<std::string, unsigned int> LL1Parser::getColumnWidthsOfParsingTable(const LL1ParsingTable &parsingTable) const
 {
     std::map<std::string, unsigned int> columnWidths;
-
+    for(const std::string &currentTerminal : getTerminalsWithEOS(cfg.getTerminals())) {
+        columnWidths[currentTerminal] = currentTerminal.length();
+    }
     for(const std::string &currentVariable : cfg.getVariables()) {
         for(const std::string &currentTerminal : getTerminalsWithEOS(cfg.getTerminals())) {
             const unsigned int &suggestedLength = parsingTable.at(currentVariable).at(currentTerminal).length();
@@ -79,19 +89,21 @@ std::map<std::string, unsigned int> LL1Parser::getColumnWidthsOfParsingTable(con
 void LL1Parser::printHorizontalLine(const std::map<std::string,
                          unsigned int> &columnWidths, const unsigned int &variableColumnWidth) const {
     std::cout << "|" << std::string(variableColumnWidth, '-') << "|";
-    for(const std::string &currentTerminal : getTerminalsWithEOS(cfg.getTerminals())) {
+    for(const std::string &currentTerminal : cfg.getTerminals()) {
         std::cout << std::string(columnWidths.at(currentTerminal)+3, '-') << "|";
     }
+    std::cout << std::string(columnWidths.at("<EOS>")+3, '-') << "|";
     std::cout << std::endl;
 }
 void LL1Parser::printParsingTable(const LL1ParsingTable &parsingTable,
                                   const std::map<std::string, unsigned int> &columnWidths) const {
     const unsigned int variableColumnWidth = 4;
-    const std::set<std::string> & terminals = getTerminalsWithEOS(cfg.getTerminals());
-    std::cout << getColumnStr("", 1);
+    const std::set<std::string> & terminals = cfg.getTerminals();
+    std::cout << std::string(5, ' ');
     for(const std::string &currentTerminal : terminals) {
         std::cout << getColumnStr(currentTerminal, columnWidths.at(currentTerminal));
     }
+    std::cout << getColumnStr("<EOS>", columnWidths.at("<EOS>"));
     std::cout << "|";
     std::cout << std::endl;
     printHorizontalLine(columnWidths, variableColumnWidth);
@@ -100,6 +112,7 @@ void LL1Parser::printParsingTable(const LL1ParsingTable &parsingTable,
         for(const std::string &currentTerminal : terminals) {
             std::cout << getColumnStr(parsingTable.at(currentVariable).at(currentTerminal), columnWidths.at(currentTerminal));
         }
+        std::cout << getColumnStr(parsingTable.at(currentVariable).at("<EOS>"), columnWidths.at("<EOS>"));
         std::cout << "|";
         std::cout << std::endl;
     }

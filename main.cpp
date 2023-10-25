@@ -4,6 +4,6 @@ using namespace std;
 
 int main() {
     CFG cfg("input-ll1.json");
-    cfg.ll().print();
+    cfg.ll();
     return 0;
 }

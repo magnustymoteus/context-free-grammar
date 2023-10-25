@@ -8,7 +8,7 @@
 #include "json.hpp"
 
 #include "CFG.h"
-#include "LLParser1.h"
+#include "LL1Parser.h"
 
 using nlohmann::json;
 
@@ -23,8 +23,8 @@ bool CFG::isTerminal(const std::string &symbol) const {
     return terminals.find(symbol) != terminals.end();
 }
 
-LL1Parser CFG::ll() const {
-    return LL1Parser{*this};
+void CFG::ll() const {
+    LL1Parser{*this}.print();
 }
 CFG::CFG(const std::set<std::string> &variables_arg,
          const std::set<std::string> &terminals_arg,
@@ -205,6 +205,9 @@ std::map<std::string, std::set<std::string>> CFG::getAllFollowSets() const {
         for (const std::string &currentVariable: getVariables()) {
             setFollowSet(currentVariable, result, setHasChanged);
         }
+    }
+    for(auto &currentFollowSet : result) {
+        currentFollowSet.second.erase("");
     }
     return result;
 }

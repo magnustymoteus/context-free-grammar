@@ -2,8 +2,8 @@
 // Created by gruzi on 22/10/2023.
 //
 
-#ifndef CFG_LLPARSER1_H
-#define CFG_LLPARSER1_H
+#ifndef CFG_LL1PARSER_H
+#define CFG_LL1PARSER_H
 
 class CFG;
 
@@ -32,4 +32,4 @@ public:
 };
 
 
-#endif //CFG_LLPARSER1_H
+#endif //CFG_LL1PARSER_H
