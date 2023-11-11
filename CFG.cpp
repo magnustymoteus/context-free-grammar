@@ -7,8 +7,9 @@
 
 #include "json.hpp"
 
+#include "utils.h"
+
 #include "CFG.h"
-#include "LL1Parser.h"
 
 using nlohmann::json;
 
@@ -37,7 +38,7 @@ CFG::CFG(const std::set<std::string> &variables_arg,
     std::string errorMessage;
     if(!isValid(errorMessage)) throw std::invalid_argument(errorMessage.c_str());
 }
-CFG::CFG(const std::string &jsonPath) {
+CFG::CFG(const std::string &jsonPath){
     std::ifstream input(jsonPath);
     json j = json::parse(input);
 
@@ -93,19 +94,11 @@ std::string CFG::bodyToStr(const std::vector<std::string> &body) {
     return result;
 }
 void CFG::print() const {
-    std::cout << "V = {";
-    for (const std::string &currentVariable: variables) {
-        std::cout << currentVariable;
-        if (*(--variables.end()) != currentVariable) std::cout << ", ";
-    }
-    std::cout << "}\n";
+    std::cout << "V = ";
+    printSet(getVariables());
 
-    std::cout << "T = {";
-    for (const std::string &currentTerminal: terminals) {
-        std::cout << currentTerminal;
-        if (*(--terminals.end()) != currentTerminal) std::cout << ", ";
-    }
-    std::cout << "}\n";
+    std::cout << "T = ";
+    printSet(getTerminals());
 
     std::cout << "P = {\n";
     for (std::pair<std::string, CFGProductionBodies> currentRule: production_rules) {
@@ -121,6 +114,7 @@ void CFG::print() const {
     }
     std::cout << "}\n";
     std::cout << "S = " << starting_variable;
+    std::cout << std::endl;
 }
 
 std::set<std::string> CFG::getVariables() const {return variables;}
@@ -146,7 +140,7 @@ std::set<std::string> CFG::getFirstSet(const std::string &variable) const {
     return result;
 }
 
-std::map<std::string, std::set<std::string>> CFG::getAllFirstSets() const {
+std::map<std::string, std::set<std::string>> CFG::getFirstSets() const {
     std::map<std::string, std::set<std::string>> result;
     for(const std::string &currentVariable : getVariables()) {
         result[currentVariable] = getFirstSet(currentVariable);
@@ -154,11 +148,6 @@ std::map<std::string, std::set<std::string>> CFG::getAllFirstSets() const {
     return result;
 }
 
-void insertIfNotASubset(std::set<std::string> &a, const std::set<std::string> &b, bool &hasChanged) {
-    const size_t sizeBefore = a.size();
-    a.insert(b.begin(), b.end());
-    hasChanged = hasChanged || sizeBefore != a.size();
-}
 void CFG::setFollowSet(const std::string &variable,
                                         std::map<std::string,std::set<std::string>> &followSets,
                                         bool &setHasChanged) const {
@@ -167,7 +156,7 @@ void CFG::setFollowSet(const std::string &variable,
 
     /* FOLLOW(A) = {a|S ⇒* αAaβ where α, β can be any strings} */
     if(variable == getStartingVariable())
-        insertIfNotASubset(followSets[variable],{"<EOS>"}, setHasChanged);
+        insertIfNotASubset(followSets[variable],{EOS_MARKER}, setHasChanged);
     for(const CFGProductionBody &currentBody : getProductionBodies(variable)) {
         for(int i=0;i<currentBody.size();i++) {
             const std::string &current = currentBody[i];
@@ -197,7 +186,8 @@ void CFG::setFollowSet(const std::string &variable,
 }
 
 
-std::map<std::string, std::set<std::string>> CFG::getAllFollowSets() const {
+std::map<std::string, std::set<std::string>> CFG::getFollowSets() const {
+    // update follow sets until no update is happening
     std::map<std::string, std::set<std::string>> result;
     bool setHasChanged = true;
     while(setHasChanged) {

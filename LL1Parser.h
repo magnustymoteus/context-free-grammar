@@ -25,9 +25,10 @@ private:
 public:
     std::map<std::string, std::set<std::string>> followSets;
     std::map<std::string, std::set<std::string>> firstSets;
+
     const CFG &cfg;
 
-    LL1Parser(const CFG &cfg);
+    explicit LL1Parser(const CFG &cfg);
     void print() const;
 };
 

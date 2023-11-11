@@ -11,6 +11,8 @@
 #include <string>
 #include "LL1Parser.h"
 
+#define EOS_MARKER "<EOS>"
+
 typedef std::vector<std::string> CFGProductionBody;
 typedef std::vector<CFGProductionBody> CFGProductionBodies;
 typedef std::map<std::string, CFGProductionBodies> CFGProductionRules;
@@ -23,6 +25,10 @@ private:
     std::set<std::string> terminals;
     CFGProductionRules production_rules; // key: head : array of bodies
     std::string starting_variable;
+
+    void setFollowSet(
+            const std::string &variable, std::map<std::string, std::set<std::string>> &followSets,
+            bool &setHasChanged) const;
 
 public:
     CFG(const std::set<std::string> &variables_arg,
@@ -44,12 +50,10 @@ public:
     [[nodiscard]] CFGProductionBodies getProductionBodies(const std::string &productionHead) const;
 
     [[nodiscard]] std::set<std::string> getFirstSet(const std::string &variable) const;
-    void setFollowSet(
-            const std::string &variable, std::map<std::string, std::set<std::string>> &followSets,
-            bool &setHasChanged) const;
-    [[nodiscard]] std::map<std::string, std::set<std::string>> getAllFirstSets() const;
 
-    [[nodiscard]] std::map<std::string, std::set<std::string>> getAllFollowSets() const;
+    [[nodiscard]] std::map<std::string, std::set<std::string>> getFirstSets() const;
+
+    [[nodiscard]] std::map<std::string, std::set<std::string>> getFollowSets() const;
 
     [[nodiscard]] static std::string bodyToStr(const std::vector<std::string> &body);
 

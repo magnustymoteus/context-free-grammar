@@ -3,4 +3,4 @@ project(CFG)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(CFG main.cpp CFG.cpp CFG.h LL1Parser.h LL1Parser.cpp)
+add_executable(CFG main.cpp CFG.cpp LL1Parser.cpp  CLR1Parser.cpp utils.cpp AugmentedCFG.cpp AugmentedCFG.cpp)

@@ -1,0 +1,32 @@
+//
+#include "utils.h"
+
+#include <iostream>
+
+void printSet(const std::set<std::string> &set) {
+    std::set<std::string> newSet = set;
+    const bool containsEpsilon = newSet.find("") != newSet.end();
+    newSet.erase("");
+    std::string result = "{";
+    const unsigned int size = newSet.size();
+    unsigned int i=0;
+    for(const std::string &currentSymbol : newSet) {
+        if(!currentSymbol.empty()) result += currentSymbol;
+        if(i!=size-1) result += ", ";
+        i++;
+    }
+    if(containsEpsilon) result += ", ";
+    std::cout << result+"}\n";
+}
+void printSets(const std::map<std::string, std::set<std::string>> &sets) {
+    std::cout << std::endl;
+    for(const auto & currentVariable : sets) {
+        std::cout << std::string(4, ' ') << currentVariable.first << ": ";
+        printSet(currentVariable.second);
+    }
+}
+void insertIfNotASubset(std::set<std::string> &a, const std::set<std::string> &b, bool &hasChanged) {
+    const size_t sizeBefore = a.size();
+    a.insert(b.begin(), b.end());
+    hasChanged = hasChanged || sizeBefore != a.size();
+}
