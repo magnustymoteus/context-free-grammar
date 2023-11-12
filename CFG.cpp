@@ -12,6 +12,7 @@
 #include "CFG.h"
 
 using nlohmann::json;
+using namespace CFGUtils;
 
 
 bool hasConflicts(const std::set<std::string> &variables, const std::set<std::string> &terminals) {
@@ -140,6 +141,7 @@ std::set<std::string> CFG::getFirstSet(const std::string &variable) const {
     return result;
 }
 
+
 std::map<std::string, std::set<std::string>> CFG::getFirstSets() const {
     std::map<std::string, std::set<std::string>> result;
     for(const std::string &currentVariable : getVariables()) {
@@ -157,29 +159,31 @@ void CFG::setFollowSet(const std::string &variable,
     /* FOLLOW(A) = {a|S ⇒* αAaβ where α, β can be any strings} */
     if(variable == getStartingVariable())
         insertIfNotASubset(followSets[variable],{EOS_MARKER}, setHasChanged);
-    for(const CFGProductionBody &currentBody : getProductionBodies(variable)) {
-        for(int i=0;i<currentBody.size();i++) {
-            const std::string &current = currentBody[i];
-            const bool &currentIsTerminal = isTerminal(current);
-            if(i != currentBody.size()-1 && !currentIsTerminal) {
-                bool hasEpsilon = false;
-                for(int j=i+1;j<currentBody.size();j++) {
-                    const std::string &currentNext = currentBody[j];
-                    std::set<std::string> firstSet = getFirstSet(currentNext);
-                    hasEpsilon = firstSet.find("") != firstSet.end();
-                    firstSet.erase("");
-                    insertIfNotASubset(followSets[current], firstSet, setHasChanged);
-                    if(!hasEpsilon) break;
-                }
-                if(hasEpsilon) {
-                    insertIfNotASubset(followSets[current], followSets[variable], setHasChanged);
-                }
+    if(production_rules.find(variable) != production_rules.end()) {
+        for (const CFGProductionBody &currentBody: getProductionBodies(variable)) {
+            for (int i = 0; i < currentBody.size(); i++) {
+                const std::string &current = currentBody[i];
+                const bool &currentIsTerminal = isTerminal(current);
+                if (i != currentBody.size() - 1 && !currentIsTerminal) {
+                    bool hasEpsilon = false;
+                    for (int j = i + 1; j < currentBody.size(); j++) {
+                        const std::string &currentNext = currentBody[j];
+                        std::set<std::string> firstSet = getFirstSet(currentNext);
+                        hasEpsilon = firstSet.find("") != firstSet.end();
+                        firstSet.erase("");
+                        insertIfNotASubset(followSets[current], firstSet, setHasChanged);
+                        if (!hasEpsilon) break;
+                    }
+                    if (hasEpsilon) {
+                        insertIfNotASubset(followSets[current], followSets[variable], setHasChanged);
+                    }
 
-            }
-            /* If production is of form A → αB, then Follow (B) ={FOLLOW (A)}. */
-            else if(!currentIsTerminal && !current.empty()) {
-                const std::set<std::string> &followSet = followSets[variable];
-                insertIfNotASubset(followSets[current], followSet, setHasChanged);
+                }
+                    /* If production is of form A → αB, then Follow (B) ={FOLLOW (A)}. */
+                else if (!currentIsTerminal && !current.empty()) {
+                    const std::set<std::string> &followSet = followSets[variable];
+                    insertIfNotASubset(followSets[current], followSet, setHasChanged);
+                }
             }
         }
     }

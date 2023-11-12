@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+using namespace CFGUtils;
 
 LL1Parser::LL1Parser(const CFG &cfg) : firstSets(cfg.getFirstSets()), followSets(cfg.getFollowSets()), cfg(cfg)
 {}

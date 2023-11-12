@@ -18,6 +18,7 @@ typedef std::vector<CFGProductionBody> CFGProductionBodies;
 typedef std::map<std::string, CFGProductionBodies> CFGProductionRules;
 typedef std::pair<std::string, CFGProductionBodies> CFGProductionRule;
 
+
 class CFG {
 private:
     bool isValid(std::string &errorMessage) const;
@@ -33,7 +34,7 @@ private:
 public:
     CFG(const std::set<std::string> &variables_arg,
         const std::set<std::string> &terminals_arg,
-        std::map<std::string, std::vector<std::vector<std::string>>> &production_rules_arg,
+        CFGProductionRules &production_rules_arg,
         const std::string &starting_variable_arg);
     CFG() = default;
     explicit CFG(const std::string &jsonPath);

@@ -15,6 +15,8 @@ struct AugmentedProductionBody {
 
     [[nodiscard]] CFGProductionBody getContent() const {return content;}
     [[nodiscard]] unsigned int getReadingIndex() const {return readingIndex;}
+
+    bool operator<(const AugmentedProductionBody &body) const;
 };
 struct AugmentedProductions {
     std::vector<AugmentedProductionBody> bodies;
@@ -25,6 +27,7 @@ struct AugmentedProductions {
 
     [[nodiscard]] std::vector<AugmentedProductionBody> getBodies() const {return bodies;}
     [[nodiscard]] std::set<std::string> getLookaheads() const {return lookaheads;}
+    bool operator<(const AugmentedProductions &productions) const;
 };
 
 typedef std::map<std::string, AugmentedProductions> ItemSet;
@@ -32,7 +35,14 @@ typedef std::map<std::string, AugmentedProductions> ItemSet;
 class AugmentedCFG {
 private:
     ItemSet startingItemSet;
+    std::map<ItemSet, std::map<std::string, ItemSet>> itemSetTransitionMap;
     std::string startingVariable;
+    const CFG &grammar;
+
+    [[nodiscard]] ItemSet computeClosure(const std::pair<std::string, AugmentedProductionBody> &production,
+                                         const ItemSet &availableProductions) const;
+    [[nodiscard]] CFG constructCFGFromItemSet(const ItemSet &itemSet, const std::string &startingVariable) const;
+    void computeNextItemSets(const ItemSet &itemSet);
 
 public:
     explicit AugmentedCFG(const CFG &cfg);
