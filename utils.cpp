@@ -30,3 +30,11 @@ void CFGUtils::insertIfNotASubset(std::set<std::string> &a, const std::set<std::
     a.insert(b.begin(), b.end());
     hasChanged = hasChanged || sizeBefore != a.size();
 }
+void CFGUtils::printBody(const std::vector<std::string> &body) {
+    std::cout << "`";
+    for(unsigned int i=0;i<body.size();i++) {
+        std::cout << body[i];
+        if(i < body.size()-1) std::cout << " ";
+    }
+    std::cout << "`\n";
+}

@@ -39,18 +39,16 @@ private:
     std::string startingVariable;
     const CFG &grammar;
 
-    [[nodiscard]] ItemSet computeClosure(const std::pair<std::string, AugmentedProductionBody> &production,
-                                         const ItemSet &availableProductions) const;
-    [[nodiscard]] CFG constructCFGFromItemSet(const ItemSet &itemSet, const std::string &startingVariable) const;
-    void computeNextItemSets(const ItemSet &itemSet);
 
 public:
     explicit AugmentedCFG(const CFG &cfg);
 
     [[nodiscard]] ItemSet getStartingItemSet() const;
     [[nodiscard]] std::string getStartingVariable() const;
+    [[nodiscard]] ItemSet getItemSet(const ItemSet &itemSet, const std::string &symbol) const;
 
-    void print() const;
+    static void print(const ItemSet &itemSet);
+    static ItemSet computeClosure(const ItemSet &itemSet);
 };
 
 

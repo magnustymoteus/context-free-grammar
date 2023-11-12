@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 #include <map>
+#include <vector>
 
 namespace CFGUtils {
 
@@ -15,6 +16,6 @@ namespace CFGUtils {
 
     void insertIfNotASubset(std::set<std::string> &a, const std::set<std::string> &b, bool &hasChanged);
 
-
+    void printBody(const std::vector<std::string> &body);
 }
 #endif //CFG_UTILS_H
