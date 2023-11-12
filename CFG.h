@@ -27,7 +27,7 @@ private:
     CFGProductionRules production_rules; // key: head : array of bodies
     std::string starting_variable;
 
-    void setFollowSet(
+    void computeFollowSet(
             const std::string &variable, std::map<std::string, std::set<std::string>> &followSets,
             bool &setHasChanged) const;
 
@@ -50,11 +50,11 @@ public:
     [[nodiscard]] std::string getStartingVariable() const;
     [[nodiscard]] CFGProductionBodies getProductionBodies(const std::string &productionHead) const;
 
-    [[nodiscard]] std::set<std::string> getFirstSet(const std::string &variable) const;
+    [[nodiscard]] std::set<std::string> computeFirstSet(const std::string &variable) const;
 
-    [[nodiscard]] std::map<std::string, std::set<std::string>> getFirstSets() const;
+    [[nodiscard]] std::map<std::string, std::set<std::string>> computeFirstSets() const;
 
-    [[nodiscard]] std::map<std::string, std::set<std::string>> getFollowSets() const;
+    [[nodiscard]] std::map<std::string, std::set<std::string>> computeFollowSets() const;
 
     [[nodiscard]] static std::string bodyToStr(const std::vector<std::string> &body);
 

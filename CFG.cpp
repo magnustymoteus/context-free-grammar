@@ -126,14 +126,14 @@ CFGProductionBodies CFG::getProductionBodies(const std::string &productionHead) 
     return production_rules.at(productionHead);
 }
 
-std::set<std::string> CFG::getFirstSet(const std::string &variable) const {
+std::set<std::string> CFG::computeFirstSet(const std::string &variable) const {
     std::set<std::string> result;
     if(isTerminal(variable) || variable.empty())
         return {variable};
     for(const CFGProductionBody &currentBody : getProductionBodies(variable)) {
-        const std::set<std::string> &set = getFirstSet(currentBody[0]);
+        const std::set<std::string> &set = computeFirstSet(currentBody[0]);
         if(set.find("") != set.end() && currentBody.size() > 1) {
-            const std::set<std::string> &nextSet = getFirstSet(currentBody[1]);
+            const std::set<std::string> &nextSet = computeFirstSet(currentBody[1]);
             result.insert(nextSet.begin(), nextSet.end());
         }
         result.insert(set.begin(), set.end());
@@ -142,15 +142,15 @@ std::set<std::string> CFG::getFirstSet(const std::string &variable) const {
 }
 
 
-std::map<std::string, std::set<std::string>> CFG::getFirstSets() const {
+std::map<std::string, std::set<std::string>> CFG::computeFirstSets() const {
     std::map<std::string, std::set<std::string>> result;
     for(const std::string &currentVariable : getVariables()) {
-        result[currentVariable] = getFirstSet(currentVariable);
+        result[currentVariable] = computeFirstSet(currentVariable);
     }
     return result;
 }
 
-void CFG::setFollowSet(const std::string &variable,
+void CFG::computeFollowSet(const std::string &variable,
                                         std::map<std::string,std::set<std::string>> &followSets,
                                         bool &setHasChanged) const {
     // TO DO: fix this by replacing FIRST(...) - EPSILON U FOLLOW(...) TO FIRST(...) - EPSILOJ U FIRST(...) because
@@ -168,7 +168,7 @@ void CFG::setFollowSet(const std::string &variable,
                     bool hasEpsilon = false;
                     for (int j = i + 1; j < currentBody.size(); j++) {
                         const std::string &currentNext = currentBody[j];
-                        std::set<std::string> firstSet = getFirstSet(currentNext);
+                        std::set<std::string> firstSet = computeFirstSet(currentNext);
                         hasEpsilon = firstSet.find("") != firstSet.end();
                         firstSet.erase("");
                         insertIfNotASubset(followSets[current], firstSet, setHasChanged);
@@ -190,14 +190,14 @@ void CFG::setFollowSet(const std::string &variable,
 }
 
 
-std::map<std::string, std::set<std::string>> CFG::getFollowSets() const {
+std::map<std::string, std::set<std::string>> CFG::computeFollowSets() const {
     // update follow sets until no update is happening
     std::map<std::string, std::set<std::string>> result;
     bool setHasChanged = true;
     while(setHasChanged) {
         setHasChanged = false;
         for (const std::string &currentVariable: getVariables()) {
-            setFollowSet(currentVariable, result, setHasChanged);
+            computeFollowSet(currentVariable, result, setHasChanged);
         }
     }
     for(auto &currentFollowSet : result) {

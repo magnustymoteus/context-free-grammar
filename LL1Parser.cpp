@@ -11,7 +11,7 @@
 
 using namespace CFGUtils;
 
-LL1Parser::LL1Parser(const CFG &cfg) : firstSets(cfg.getFirstSets()), followSets(cfg.getFollowSets()), cfg(cfg)
+LL1Parser::LL1Parser(const CFG &cfg) : firstSets(cfg.computeFirstSets()), followSets(cfg.computeFollowSets()), cfg(cfg)
 {}
 
 

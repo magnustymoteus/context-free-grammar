@@ -19,7 +19,7 @@ AugmentedCFG::AugmentedCFG(const CFG &cfg) : startingVariable(cfg.getStartingVar
     AugmentedProductionBody startingProductionBody({cfg.getStartingVariable()});
     AugmentedProductions startingProduction({startingProductionBody}, {EOS_MARKER});
     startingItemSet.insert({getStartingVariable(), startingProduction});
-    const std::map<std::string, std::set<std::string>> &followSets = cfg.getFollowSets();
+    const std::map<std::string, std::set<std::string>> &followSets = cfg.computeFollowSets();
 
     for(const auto &currentProductions : cfg.getProductionRules()) {
     std::vector<AugmentedProductionBody> bodies;
